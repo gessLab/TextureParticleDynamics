@@ -1,0 +1,22 @@
+/*
+Author: Daniel Rehberg
+Date Modified: Janurary 26, 2025
+*/
+
+#version 410
+
+smooth in vec2 texCoord;
+out vec4 color;
+
+uniform usampler2D tex;
+
+void main()
+{
+	uvec4 data = texture(tex, texCoord);
+	/*vec4 temp = vec4(float(data.r) / 255.0f, 
+					 float(data.g) / 255.0f,
+					 float(data.b) / 255.0f, 1.0f);*/
+	vec4 temp = vec4(float(texture(tex, texCoord).a) / 255.0);
+	temp.a = 1.0;
+	color = temp;
+}
