@@ -7,7 +7,7 @@ Date Modified: Janurary 26, 2025
 #define _DYNAMIC_TEXTURE_HPP__
 
 #include <GL/glew.h>
-#include <SDL_opengl.h>
+#include <SDL3/SDL_opengl.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <atomic>

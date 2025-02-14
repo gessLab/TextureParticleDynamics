@@ -8,9 +8,9 @@ Date Modified: Janurary 26, 2025
 #include <vector>
 #include <string>
 #include <chrono>
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <GL/glew.h>
-#include <SDL_opengl.h>
+#include <SDL3/SDL_opengl.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -39,13 +39,22 @@ int main(int argc, char** argv)
 	//SETUP
 	SDL_Window* window = nullptr;
 	SDL_GLContext context;
-	if (SDL_Init(SDL_INIT_VIDEO) < 0)
+	if (!SDL_Init(SDL_INIT_VIDEO))
 	{
 		std::cerr << "Failed to initialize SDL: " << SDL_GetError();
 		return 1;
 	}
 
-	window = SDL_CreateWindow("ViewSpace", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, RESX, RESY, SDL_WINDOW_OPENGL | SDL_WINDOW_INPUT_FOCUS);
+    SDL_SetLogPriorities(SDL_LOG_PRIORITY_VERBOSE);
+
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+
+	window = SDL_CreateWindow("ViewSpace", RESX, RESY, SDL_WINDOW_OPENGL | SDL_WINDOW_INPUT_FOCUS);
 	if (window == nullptr)
 	{
 		std::cerr << "Failed to create window: " << SDL_GetError();
@@ -54,17 +63,12 @@ int main(int argc, char** argv)
 	}
 	context = SDL_GL_CreateContext(window);
 
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-
 	glewExperimental = true;
 	GLenum glewErr = glewInit();
 	if (glewErr != GLEW_OK)
 	{
 		std::cerr << "Glew error: " << glewGetErrorString(glewErr);
-		SDL_GL_DeleteContext(context);
+		SDL_GL_DestroyContext(context);
 		SDL_DestroyWindow(window);
 		SDL_Quit();
 		return 3;
@@ -80,10 +84,10 @@ int main(int argc, char** argv)
 	DynamicTexture dt;
 	dt.uploadTexture(tex);
 
-	glm::mat4 camera = glm::lookAt(glm::vec3(0.0f, 200.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat4 camera = glm::lookAt(glm::vec3(0.1f, 2.5f, 0.1f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::mat4 proj = glm::perspective(
 		glm::radians(75.0f), 16.0f / 9.0f,
-		100.0f, 1000.0f
+		1.0f, 10.0f
 	);
 
 	SDL_Event e;
@@ -98,15 +102,15 @@ int main(int argc, char** argv)
 		{
 			switch (e.type)
 			{
-			case SDL_QUIT: quit = true; break;
-			case SDL_KEYDOWN:
+			case SDL_EVENT_QUIT: quit = true; break;
+			case SDL_EVENT_KEY_DOWN:
 			{
-				switch (e.key.keysym.sym)
+				switch (e.key.key)
 				{
-				case SDLK_UP: rotAxis += glm::vec3(1.0f, 0.0f, 0.0f); rotAng = 2.0f; break;
-				case SDLK_DOWN: rotAxis += glm::vec3(-1.0f, 0.0f, 0.0f); rotAng = 2.0f; break;
-				case SDLK_RIGHT: rotAxis += glm::vec3(0.0f, 1.0f, 0.0f); rotAng = 2.0f; break;
-				case SDLK_LEFT: rotAxis += glm::vec3(0.0f, -1.0f, 0.0f); rotAng = 2.0f; break;
+				case SDLK_UP:    rotAxis += glm::vec3( 1.0f,  0.0f, 0.0f); rotAng = 0.2f; break;
+				case SDLK_DOWN:  rotAxis += glm::vec3(-1.0f,  0.0f, 0.0f); rotAng = 0.2f; break;
+				case SDLK_RIGHT: rotAxis += glm::vec3( 0.0f,  1.0f, 0.0f); rotAng = 0.2f; break;
+				case SDLK_LEFT:  rotAxis += glm::vec3( 0.0f, -1.0f, 0.0f); rotAng = 0.2f; break;
 				}
 			}
 			}
@@ -116,7 +120,7 @@ int main(int argc, char** argv)
 		dt.uploadTexture(tex);
 		glBindVertexArray(vao);
 		glUseProgram(program);
-		
+
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, tex);
 		//glUniform1i(uniTex, 0);
@@ -136,7 +140,7 @@ int main(int argc, char** argv)
 	//DESTRUCTION
 	closeShaders();
 	closeBuffers();
-	SDL_GL_DeleteContext(context);
+	SDL_GL_DestroyContext(context);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 
