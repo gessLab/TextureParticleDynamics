@@ -7,11 +7,13 @@ Date Modified: Janurary 26, 2025
 #define _DYNAMIC_TEXTURE_HPP__
 
 #include <GL/glew.h>
-#include <SDL3/SDL_opengl.h>
+#include <SDL_opengl.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <atomic>
 #include <random>
+#include <mutex>
+#include "Stamp.hpp"
 
 constexpr size_t DIM = 64;
 
@@ -23,6 +25,8 @@ public:
 	const glm::mat4& getModel() const;
 	void updateTexture(const glm::vec3& axis, const float angle);
 	void uploadTexture(GLuint texID);
+    // width, height, centerX, and centerY are normalized; see Stamp.hpp for more
+    void applyStamp(const Stamp& stamp, double width, double height, double centerX, double centerY, double maxStrength);
 private:
 	size_t w = DIM, h = DIM;
 	bool vertical = true;
@@ -37,5 +41,8 @@ private:
 	glm::mat4 model;
 
 };
+
+void kernelHorizontal(std::mutex& m, size_t begin, size_t end, void* data);
+void kernelVertical(std::mutex& m, size_t begin, size_t end, void* data);
 
 #endif
