@@ -1,6 +1,6 @@
 /*
-Author: Daniel Rehberg
-Date Modified: Janurary 26, 2025
+Author: Daniel Rehberg, Finley Huggins
+Date Created: Janurary 26, 2025
 */
 
 #include <iostream>
