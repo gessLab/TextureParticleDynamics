@@ -1,6 +1,6 @@
 /*
 Author: Daniel Rehberg, Finley Huggins
-Date Created: Janurary 26, 2025
+Date Modified: April 4, 2025
 */
 
 #include <iostream>
@@ -15,6 +15,7 @@ Date Created: Janurary 26, 2025
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "TexDyn.hpp"
+#include "Rain.hpp"
 
 constexpr int RESX = 1280;
 constexpr int RESY = 720;
@@ -28,14 +29,8 @@ void closeShaders();
 void buildBuffers();
 void closeBuffers();
 
-std::uint32_t testing[1024 * 1024];
-
 int main(int argc, char** argv)
 {
-	for (size_t i = 0; i < 1024 * 1024; ++i)
-	{
-		testing[i] = 0x00FF0000;
-	}
 	//SETUP
 	SDL_Window* window = nullptr;
 	SDL_GLContext context;
@@ -82,6 +77,14 @@ int main(int argc, char** argv)
 	buildBuffers();
 
 	DynamicTexture dt;
+    RainCreator rain;
+
+    for (int i = 0; i < 40; ++i)
+    {
+        rain.addRaindrop(dt);
+    }
+
+
 	dt.uploadTexture(tex);
 
 	glm::mat4 camera = glm::lookAt(glm::vec3(0.1f, 2.5f, 0.1f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -107,16 +110,18 @@ int main(int argc, char** argv)
 			{
 				switch (e.key.key)
 				{
-				case SDLK_UP:    rotAxis += glm::vec3( 1.0f,  0.0f, 0.0f); rotAng = 0.2f; break;
-				case SDLK_DOWN:  rotAxis += glm::vec3(-1.0f,  0.0f, 0.0f); rotAng = 0.2f; break;
-				case SDLK_RIGHT: rotAxis += glm::vec3( 0.0f,  1.0f, 0.0f); rotAng = 0.2f; break;
-				case SDLK_LEFT:  rotAxis += glm::vec3( 0.0f, -1.0f, 0.0f); rotAng = 0.2f; break;
+				case SDLK_UP:    rotAxis += glm::vec3( 1.0f,  0.0f, 0.0f); rotAng = 0.02f; break;
+				case SDLK_DOWN:  rotAxis += glm::vec3(-1.0f,  0.0f, 0.0f); rotAng = 0.02f; break;
+				case SDLK_RIGHT: rotAxis += glm::vec3( 0.0f,  1.0f, 0.0f); rotAng = 0.02f; break;
+				case SDLK_LEFT:  rotAxis += glm::vec3( 0.0f, -1.0f, 0.0f); rotAng = 0.02f; break;
 				}
 			}
 			}
 		}
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		dt.updateTexture(rotAxis, rotAng);
+        for (int i = 0; i < RAIN_ITERATIONS; ++i) {
+		    dt.updateTexture(rotAxis, rotAng);
+        }
 		dt.uploadTexture(tex);
 		glBindVertexArray(vao);
 		glUseProgram(program);
@@ -135,6 +140,8 @@ int main(int argc, char** argv)
 		SDL_GL_SwapWindow(window);
 		size_t ticks = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
 		std::cout << "ticks: " << ticks << " ms\n";
+
+        rain.timeStep(ticks, dt);
 	}
 
 	//DESTRUCTION

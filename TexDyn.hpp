@@ -1,10 +1,10 @@
 /*
-Author: Daniel Rehberg
-Date Modified: Janurary 26, 2025
+Authors: Daniel Rehberg, Finley Huggins
+Date Modified: April 4, 2025
 */
 
 #ifndef __DYNAMIC_TEXTURE_HPP__
-#define _DYNAMIC_TEXTURE_HPP__
+#define __DYNAMIC_TEXTURE_HPP__
 
 #include <GL/glew.h>
 #include <SDL3/SDL_opengl.h>
@@ -13,7 +13,9 @@ Date Modified: Janurary 26, 2025
 #include <atomic>
 #include <random>
 
-constexpr size_t DIM = 64;
+constexpr size_t DIM = 512;
+constexpr size_t HEIGHT_CUTOFF = 30;
+constexpr size_t RAIN_ITERATIONS = 6;
 
 class DynamicTexture
 {
@@ -23,6 +25,7 @@ public:
 	const glm::mat4& getModel() const;
 	void updateTexture(const glm::vec3& axis, const float angle);
 	void uploadTexture(GLuint texID);
+    void addRaindrop(float norm_x, float norm_y, float norm_radius);
 private:
 	size_t w = DIM, h = DIM;
 	bool vertical = true;
