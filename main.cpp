@@ -96,6 +96,7 @@ int main(int argc, char** argv)
 	SDL_Event e;
 	bool quit = false;
 	std::chrono::time_point<std::chrono::steady_clock> start;
+    int counter = 0;
 	while (!quit)
 	{
 		start = std::chrono::steady_clock::now();
@@ -119,9 +120,17 @@ int main(int argc, char** argv)
 			}
 		}
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        for (int i = 0; i < RAIN_ITERATIONS; ++i) {
-		    dt.updateTexture(rotAxis, rotAng);
+        for (int i = 0; i < 6; ++i) {
+		    dt.updateTexture(rotAxis, rotAng, 30);
         }
+        counter = (counter + 1) % 20;
+        if (counter == 0) {
+            dt.updateTexture(rotAxis, rotAng, 0);
+        }
+        if (counter == 5 || counter == 10 || counter == 15) {
+            dt.updateTexture(rotAxis, rotAng, 15);
+        }
+
 		dt.uploadTexture(tex);
 		glBindVertexArray(vao);
 		glUseProgram(program);

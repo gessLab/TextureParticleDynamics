@@ -14,8 +14,6 @@ Date Modified: April 4, 2025
 #include <random>
 
 constexpr size_t DIM = 512;
-constexpr size_t HEIGHT_CUTOFF = 30;
-constexpr size_t RAIN_ITERATIONS = 6;
 
 class DynamicTexture
 {
@@ -23,7 +21,7 @@ public:
 	DynamicTexture();// size_t width, size_t height);
 	~DynamicTexture();
 	const glm::mat4& getModel() const;
-	void updateTexture(const glm::vec3& axis, const float angle);
+	void updateTexture(const glm::vec3& axis, const float angle, size_t height_cutoff);
 	void uploadTexture(GLuint texID);
     void addRaindrop(float norm_x, float norm_y, float norm_radius);
 private:
