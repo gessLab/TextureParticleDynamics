@@ -3,7 +3,9 @@
 // helper function addPoint
 static void addPoint(std::vector<float> &xyz, std::vector<float> &uv, float point[2])
 {
-    xyz.insert(xyz.end(), point, point + 2); xyz.push_back(0.0f);
+    xyz.push_back(point[0]);
+    xyz.push_back(0.0f);
+    xyz.push_back(point[1]);
     uv.insert(uv.end(), point, point + 2);
 } 
 
