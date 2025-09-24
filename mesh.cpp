@@ -13,7 +13,7 @@ static void addPoint(std::vector<float> &xyz, std::vector<float> &uv, float poin
  * returns a vector of xyz tri positions followed by
  * corresponding uv positions
  **/
-std::vector<float> meshGeneration(int n)
+std::vector<float> generateMesh(int n)
 {
     std::vector<float> xyz;
     std::vector<float> uv;
