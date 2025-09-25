@@ -1,4 +1,4 @@
-/* Author: Daniel Rehberg, Finley Huggins
+/* Author: Daniel Rehberg
 Date Modified: September 25, 2025
 */
 
