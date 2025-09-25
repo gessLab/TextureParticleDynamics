@@ -22,7 +22,7 @@ void main()
     float height = float(data.a) / 255.0f;
     
     // Define the colors for our sand dune gradient
-    vec3 lowColor = vec3(0.76, 0.65, 0.45);  // Dark Sand / Tan
+    vec3 lowColor = vec3(0.76, 0.65, 0.45);  // Dark Sand
     vec3 highColor = vec3(0.9, 0.8, 0.5); // Light Sandy Yellow
     
     // Blend between the two colors based on the height
