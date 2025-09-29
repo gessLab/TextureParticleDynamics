@@ -1,6 +1,6 @@
 /*
-Author: Daniel Rehberg, Finley Huggins
-Date Created: Janurary 26, 2025
+Author: Daniel Rehberg, Finley Huggins, Everton Albuquerque de Oliveira
+Date Created: January 26, 2025
 */
 
 #include <SDL3/SDL_error.h>
