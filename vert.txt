@@ -15,10 +15,11 @@ uniform mat4 view;
 
 uniform mat4 model;
 
-smooth out vec2 texCoord;
+smooth out vec2 theTexCoord;
 
 void main()
 {
-	texCoord = uv;
-	gl_Position = proj * view * model * vec4(pos.xyz, 1.0);
+	theTexCoord = uv;
+    gl_Position = vec4(pos.xyz, 1.0);
+ //	gl_Position = proj * view * model * vec4(pos.xyz, 1.0);
 }

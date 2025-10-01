@@ -19,7 +19,7 @@ Date Created: Janurary 26, 2025
 constexpr int RESX = 1280;
 constexpr int RESY = 720;
 
-GLuint vbo, vao, vert, frag, program, tex;
+GLuint vbo, vao, vert, frag, program, tex, tessEvaluation, tessControl;
 GLsizei verts;
 GLint uniProj, uniView, uniModel, uniTex;
 
@@ -130,7 +130,7 @@ int main(int argc, char** argv)
 			glm::value_ptr(camera));
 		glUniformMatrix4fv(uniModel, 1, GL_FALSE,
 			glm::value_ptr(dt.getModel()));
-		glDrawArrays(GL_TRIANGLES, 0, verts);
+		glDrawArrays(GL_PATCHES, 0, verts);
 
 		SDL_GL_SwapWindow(window);
 		size_t ticks = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
@@ -194,8 +194,40 @@ void buildShaders()
 		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
 	}
 
+	shader = readFile("control.tesc");
+	const char* tempTessControl = shader.c_str();
+	tessControl = glCreateShader(GL_TESS_CONTROL_SHADER);
+	glShaderSource(tessControl, 1, &tempTessControl, NULL);
+
+	glCompileShader(tessControl);
+	// check for shader compile errors
+	glGetShaderiv(tessControl, GL_COMPILE_STATUS, &success);
+	if (!success)
+	{
+		glGetShaderInfoLog(tessControl, 512, NULL, infoLog);
+		std::cout << "ERROR::SHADER::TESS_CONTROL::COMPILATION_FAILED\n" << infoLog << std::endl;
+        exit(4);
+	}
+
+	shader = readFile("evaluation.tese");
+	const char* tempTessEvaluation = shader.c_str();
+	tessEvaluation = glCreateShader(GL_TESS_EVALUATION_SHADER);
+	glShaderSource(tessEvaluation, 1, &tempTessEvaluation, NULL);
+
+	glCompileShader(tessEvaluation);
+	// check for shader compile errors
+	glGetShaderiv(tessEvaluation, GL_COMPILE_STATUS, &success);
+	if (!success)
+	{
+		glGetShaderInfoLog(tessEvaluation, 512, NULL, infoLog);
+		std::cout << "ERROR::SHADER::TESS_EVALUATION::COMPILATION_FAILED\n" << infoLog << std::endl;
+        exit(4);
+	}
+
 	program = glCreateProgram();
 	glAttachShader(program, vert);
+    glAttachShader(program, tessControl);
+    glAttachShader(program, tessEvaluation);
 	glAttachShader(program, frag);
 	glLinkProgram(program);
 	glGetProgramiv(program, GL_LINK_STATUS, &success);
@@ -248,6 +280,9 @@ void buildBuffers()
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)(4 * 3 * verts));
+    
+    glPatchParameteri(GL_PATCH_VERTICES, 3);
+
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 	GLenum err;
