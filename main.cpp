@@ -206,7 +206,6 @@ void buildShaders()
 	{
 		glGetShaderInfoLog(tessControl, 512, NULL, infoLog);
 		std::cout << "ERROR::SHADER::TESS_CONTROL::COMPILATION_FAILED\n" << infoLog << std::endl;
-        exit(4);
 	}
 
 	shader = readFile("evaluation.tese");
@@ -221,7 +220,6 @@ void buildShaders()
 	{
 		glGetShaderInfoLog(tessEvaluation, 512, NULL, infoLog);
 		std::cout << "ERROR::SHADER::TESS_EVALUATION::COMPILATION_FAILED\n" << infoLog << std::endl;
-        exit(4);
 	}
 
 	program = glCreateProgram();
