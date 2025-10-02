@@ -1,4 +1,4 @@
-/* Author: Daniel Rehberg
+/* Author: Daniel Rehberg, Edward Hawkson
 Date Modified: September 25, 2025
 */
 
