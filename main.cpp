@@ -19,7 +19,7 @@ Date Created: Janurary 26, 2025
 constexpr int RESX = 1280;
 constexpr int RESY = 720;
 
-GLuint vbo, vao, vert, frag, program, tex;
+GLuint vbo, vao, vert, frag, geom, program, tex;
 GLsizei verts;
 GLint uniProj, uniView, uniModel, uniTex;
 
@@ -162,42 +162,45 @@ std::string readFile(std::string file)
 	return data;
 }
 
-void buildShaders()
-{
-	std::string shader = readFile("vert.txt");
-	const char* tempVert = shader.c_str();
-	vert = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vert, 1, &tempVert, NULL);
+void buildShader(
+    std::string& shaderFile,
+    std::string shaderFileName,
+    GLenum shaderType,
+    std::string shaderTypeName,
+    GLuint& shader
+) {
+    shaderFile = readFile(shaderFileName);
+	const char* tempShader = shaderFile.c_str();
+	shader = glCreateShader(shaderType);
+	glShaderSource(shader, 1, &tempShader, NULL);
 
-	glCompileShader(vert);
+	glCompileShader(shader);
 	// check for shader compile errors
 	int success;
 	char infoLog[512];
-	glGetShaderiv(vert, GL_COMPILE_STATUS, &success);
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
 	if (!success)
 	{
-		glGetShaderInfoLog(vert, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+		glGetShaderInfoLog(shader, 512, NULL, infoLog);
+		std::cout << "ERROR::SHADER::" << shaderTypeName << "::COMPILATION_FAILED\n" << infoLog << std::endl;
 	}
+}
 
-	shader = readFile("frag.txt");
-	const char* tempFrag = shader.c_str();
-	frag = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(frag, 1, &tempFrag, NULL);
-
-	glCompileShader(frag);
-	// check for shader compile errors
-	glGetShaderiv(frag, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(frag, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
+void buildShaders()
+{
+    std::string shader;
+    buildShader(shader, "vert.txt", GL_VERTEX_SHADER, "VERTEX", vert);
+    buildShader(shader, "frag.txt", GL_FRAGMENT_SHADER, "FRAGMENT", frag);
+    buildShader(shader, "geom.txt", GL_GEOMETRY_SHADER, "GEOMETRY", geom);
 
 	program = glCreateProgram();
 	glAttachShader(program, vert);
 	glAttachShader(program, frag);
+    glAttachShader(program, geom);
 	glLinkProgram(program);
+
+    int success;
+	char infoLog[512];
 	glGetProgramiv(program, GL_LINK_STATUS, &success);
 	if (!success)
 	{
@@ -207,6 +210,7 @@ void buildShaders()
 
 	glDeleteShader(vert);
 	glDeleteShader(frag);
+    glDeleteShader(geom);
 
 	glUseProgram(0);
 	uniProj = glGetUniformLocation(program, "proj");
