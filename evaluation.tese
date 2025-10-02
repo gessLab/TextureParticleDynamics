@@ -22,7 +22,6 @@ void main() {
 
     texCoord = t0 * gl_TessCoord[0] + t1 * gl_TessCoord[1] + t2 * gl_TessCoord[2];
 
-
     vec4 p0 = gl_in[0].gl_Position;
     vec4 p1 = gl_in[1].gl_Position;
     vec4 p2 = gl_in[2].gl_Position;
