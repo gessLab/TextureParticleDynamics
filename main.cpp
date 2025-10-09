@@ -1,8 +1,9 @@
 /*
-Author: Daniel Rehberg, Finley Huggins
-Date Created: Janurary 26, 2025
+Author: Daniel Rehberg, Finley Huggins, Everton Albuquerque de Oliveira
+Date Created: January 26, 2025
 */
 
+#include <SDL3/SDL_error.h>
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -16,6 +17,23 @@ Date Created: Janurary 26, 2025
 #include <glm/gtc/matrix_transform.hpp>
 #include "TexDyn.hpp"
 
+// Original mesh before buildBuffers was modified
+std::vector<float> TEST_MESH = {
+		-1.0f, 0.0f, -1.0f,
+		-1.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, -1.0f,
+		1.0f, 0.0f, -1.0f,
+		-1.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 1.0f,
+		0.0f, 1.0f,
+		0.0f, 0.0f,
+		1.0f, 1.0f,
+		1.0f, 1.0f,
+		0.0f, 0.0f,
+		1.0f, 0.0f
+	};
+
+
 constexpr int RESX = 1280;
 constexpr int RESY = 720;
 
@@ -25,7 +43,7 @@ GLint uniProj, uniView, uniModel, uniTex;
 
 void buildShaders();
 void closeShaders();
-void buildBuffers();
+void buildBuffers(std::vector<float> mesh);
 void closeBuffers();
 
 std::uint32_t testing[1024 * 1024];
@@ -39,6 +57,7 @@ int main(int argc, char** argv)
 	//SETUP
 	SDL_Window* window = nullptr;
 	SDL_GLContext context;
+
 	if (!SDL_Init(SDL_INIT_VIDEO))
 	{
 		std::cerr << "Failed to initialize SDL: " << SDL_GetError();
@@ -79,7 +98,7 @@ int main(int argc, char** argv)
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	buildShaders();
-	buildBuffers();
+	buildBuffers(TEST_MESH);
 
 	DynamicTexture dt;
 	dt.uploadTexture(tex);
@@ -221,23 +240,10 @@ void closeShaders()
 	program = 0;
 }
 
-void buildBuffers()
+void buildBuffers(std::vector<float> mesh)
 {
-	std::vector<float> mesh = {
-		-1.0f, 0.0f, -1.0f,
-		-1.0f, 0.0f, 1.0f,
-		1.0f, 0.0f, -1.0f,
-		1.0f, 0.0f, -1.0f,
-		-1.0f, 0.0f, 1.0f,
-		1.0f, 0.0f, 1.0f,
-		0.0f, 1.0f,
-		0.0f, 0.0f,
-		1.0f, 1.0f,
-		1.0f, 1.0f,
-		0.0f, 0.0f,
-		1.0f, 0.0f
-	};
-	verts = 6;
+	
+    verts = mesh.size() / 5; // Three floats for xyz coords and two for uv coords
 
 	glGenVertexArrays(1, &vao);
 	glGenBuffers(1, &vbo);
@@ -247,7 +253,7 @@ void buildBuffers()
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)(4 * 3 * verts));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)(sizeof(float) * 3 * verts));
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 	GLenum err;
