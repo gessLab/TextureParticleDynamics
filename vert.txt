@@ -1,6 +1,6 @@
 /*
-Author: Daniel Rehberg
-Date Modified: Janurary 26, 2025
+Author: Daniel Rehberg, Henry Jochaniewicz
+Date Modified: October 13, 2025
 */
 
 #version 410
@@ -15,10 +15,11 @@ uniform mat4 view;
 
 uniform mat4 model;
 
-smooth out vec2 texCoord;
+smooth out vec2 vTexCoord;
 
 void main()
 {
-	texCoord = uv;
-	gl_Position = proj * view * model * vec4(pos.xyz, 1.0);
+	vTexCoord = uv;
+    gl_Position = vec4(pos.xyz, 1.0);
+ //	gl_Position = proj * view * model * vec4(pos.xyz, 1.0);
 }
