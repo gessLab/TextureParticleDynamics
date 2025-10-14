@@ -1,5 +1,5 @@
 /*
-Author: Daniel Rehberg, Finley Huggins
+Author: Daniel Rehberg, Finley Huggins, Henry Jochaniewicz
 Date Created: Janurary 26, 2025
 */
 
@@ -237,6 +237,8 @@ void buildShaders()
 
 	glDeleteShader(vert);
 	glDeleteShader(frag);
+	glDeleteShader(tessEvaluation);
+	glDeleteShader(tessControl);
 
 	glUseProgram(0);
 	uniProj = glGetUniformLocation(program, "proj");

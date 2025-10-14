@@ -1,13 +1,13 @@
 /*
  * Author: Henry Jochaniewicz
- * Date Modified: September 30, 2025
+ * Date Modified: October 13, 2025
  */
 
 #version 410 core
 
 layout (vertices=3) out;
 
-in vec2 theTexCoord[];
+in vec2 vTexCoord[];
 
 uniform mat4 view;
 uniform mat4 model;
@@ -16,7 +16,7 @@ out vec2 TextureCoord[];
 
 void main() {
     gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
-    TextureCoord[gl_InvocationID] = theTexCoord[gl_InvocationID];
+    TextureCoord[gl_InvocationID] = vTexCoord[gl_InvocationID];
 
     if(gl_InvocationID == 0) {
         const int MIN_TESS_LEVEL = 2;
