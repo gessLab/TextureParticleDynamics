@@ -8,7 +8,8 @@ Date Modified: September 25, 2025
 smooth in vec2 texCoord;
 
 // The final color output
-out vec4 color;
+out vec4 color; //change to one output
+//out vec1 alpha_out;
 
 // The texture containing our height data
 uniform usampler2D tex;
