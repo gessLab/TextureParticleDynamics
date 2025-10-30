@@ -4,7 +4,7 @@ Date Modified: Janurary 26, 2025
 */
 
 #ifndef __DYNAMIC_TEXTURE_HPP__
-#define _DYNAMIC_TEXTURE_HPP__
+#define __DYNAMIC_TEXTURE_HPP__
 
 #include <GL/glew.h>
 #include <SDL3/SDL_opengl.h>
