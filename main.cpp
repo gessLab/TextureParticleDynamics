@@ -192,34 +192,8 @@ void buildShaders()
     buildShader(shader, "vert.txt", GL_VERTEX_SHADER, "VERTEX", vert);
     buildShader(shader, "frag.txt", GL_FRAGMENT_SHADER, "FRAGMENT", frag);
     buildShader(shader, "geom.txt", GL_GEOMETRY_SHADER, "GEOMETRY", geom);
-
-	shader = readFile("control.tesc");
-	const char* tempTessControl = shader.c_str();
-	tessControl = glCreateShader(GL_TESS_CONTROL_SHADER);
-	glShaderSource(tessControl, 1, &tempTessControl, NULL);
-
-	glCompileShader(tessControl);
-	// check for shader compile errors
-	glGetShaderiv(tessControl, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(tessControl, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::TESS_CONTROL::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
-
-	shader = readFile("evaluation.tese");
-	const char* tempTessEvaluation = shader.c_str();
-	tessEvaluation = glCreateShader(GL_TESS_EVALUATION_SHADER);
-	glShaderSource(tessEvaluation, 1, &tempTessEvaluation, NULL);
-
-	glCompileShader(tessEvaluation);
-	// check for shader compile errors
-	glGetShaderiv(tessEvaluation, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(tessEvaluation, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::TESS_EVALUATION::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
+    buildShader(shader, "control.tesc", GL_TESS_CONTROL_SHADER, "TESS_CONTROL", tessControl);
+    buildShader(shader, "evaluation.tese", GL_TESS_EVALUATION_SHADER, "TESS_EVALUATION", tessEvaluation);
 
 	program = glCreateProgram();
 	glAttachShader(program, vert);
@@ -283,8 +257,8 @@ void buildBuffers()
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)(4 * 3 * verts));
-    
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*) (uintptr_t) (4 * 3 * verts));
+
     glPatchParameteri(GL_PATCH_VERTICES, 3);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
