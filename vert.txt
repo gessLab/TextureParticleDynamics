@@ -1,11 +1,6 @@
 /*
-<<<<<<< HEAD
-Authors: Daniel Rehberg, Finley Huggins
-Date Modified: October 2, 2025
-=======
-Author: Daniel Rehberg, Henry Jochaniewicz
-Date Modified: October 13, 2025
->>>>>>> tessellation_shader
+Authors: Daniel Rehberg, Finley Huggins, Henry Jochaniewicz
+Date Modified: October 30, 2025
 */
 
 #version 410
@@ -26,15 +21,9 @@ smooth out vec2 vTexCoord;
 
 void main()
 {
-<<<<<<< HEAD
     uvec4 data = texture(tex, uv);
 
-	texCoord = uv;
-    // the /100 is arbitrary
-	gl_Position = proj * view * model * vec4(pos.x, pos.y + data.a/100.0, pos.z, 1.0);
-=======
 	vTexCoord = uv;
-    gl_Position = vec4(pos.xyz, 1.0);
- //	gl_Position = proj * view * model * vec4(pos.xyz, 1.0);
->>>>>>> tessellation_shader
+    // the /100 is arbitrary
+	gl_Position = vec4(pos.x, pos.y + data.a/100.0, pos.z, 1.0);
 }
