@@ -15,6 +15,7 @@ Date Created: Janurary 26, 2025
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "TexDyn.hpp"
+#include "mesh.hpp"
 
 constexpr int RESX = 1280;
 constexpr int RESY = 720;
@@ -93,6 +94,8 @@ int main(int argc, char** argv)
 	SDL_Event e;
 	bool quit = false;
 	std::chrono::time_point<std::chrono::steady_clock> start;
+
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	while (!quit)
 	{
 		start = std::chrono::steady_clock::now();
@@ -233,6 +236,7 @@ void closeShaders()
 
 void buildBuffers()
 {
+    /*
 	std::vector<float> mesh = {
 		-1.0f, 0.0f, -1.0f,
 		-1.0f, 0.0f, 1.0f,
@@ -247,7 +251,10 @@ void buildBuffers()
 		0.0f, 0.0f,
 		1.0f, 0.0f
 	};
-	verts = 6;
+    */
+    const int numSquares = 1;
+    std::vector<float> mesh = generateMesh(numSquares, -1, 1);
+	verts = numSquares * numSquares * 6;
 
 	glGenVertexArrays(1, &vao);
 	glGenBuffers(1, &vbo);

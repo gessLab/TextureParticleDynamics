@@ -1,6 +1,6 @@
 /*
  * Author: Henry Jochaniewicz
- * Date Modified: September 25, 2025
+ * Date Modified: November 5, 2025
  */
 
 #include <vector>
@@ -19,20 +19,23 @@ void addPoint(std::vector<float> &posXYZ, std::vector<float> &texCoordUV, const 
     posXYZ.push_back(0.0f);
     posXYZ.push_back(newPos[1]);
     texCoordUV.insert(texCoordUV.end(), newPos, newPos + 2);
-} 
+}
 
 /** meshGeneration
- * function that generates an n x n square of triangles
+ * function that generates an n x n square of triangles from
+ * the coordinates (min, min) to (max, max)
  * @param   n   number of squares on a side
- * returns a vector of xyz tri positions followed by
- * corresponding uv positions
+ * @param   min minimum coordinate to generate mesh
+ * @param   max maximum coordinate to generate mesh
+ * return   a vector of xyz tri positions followed by
+ *          corresponding uv positions
  **/
-std::vector<float> generateMesh(int n)
+std::vector<float> generateMesh(int n, float min, float max)
 {
     std::vector<float> posXYZ;
     std::vector<float> texCoordUV;
 
-    float numSquares = static_cast<float>(n);
+    const float factor = static_cast<float>(max - min) / static_cast<float>(n);
 
     for(int i = 0; i < n; i++)
     {
@@ -41,10 +44,11 @@ std::vector<float> generateMesh(int n)
             float x = static_cast<float>(i);
             float y = static_cast<float>(j);
 
-            float topLeft[2]     = { x       / numSquares, y / numSquares };
-            float topRight[2]    = { (x + 1) / numSquares, y / numSquares };
-            float bottomLeft[2]  = { x       / numSquares, (y + 1) / numSquares };
-            float bottomRight[2] = { (x + 1) / numSquares, (y + 1) / numSquares };
+            // we map from [0, 1] => [min, max]
+            float topLeft[2]     = { x       * factor + min, y * factor + min };
+            float topRight[2]    = { (x + 1) * factor + min, y * factor + min };
+            float bottomLeft[2]  = { x       * factor + min, (y + 1) * factor + min };
+            float bottomRight[2] = { (x + 1) * factor + min, (y + 1) * factor + min };
 
             addPoint(posXYZ, texCoordUV, topLeft);
             addPoint(posXYZ, texCoordUV, bottomLeft);
