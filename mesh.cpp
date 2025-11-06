@@ -11,13 +11,16 @@
  * where the point (x, y) gets mapped to (x, 0, y) in the xyz vector and (x, y0) in the uv one
  * @param   posXYZ      vector<float> of xyz positions
  * @param   texCoordUV  vector<float> of texture coordinate uv positions
+ * @param   min         minimum value to transform coordinate
+ * @param   max         maximum value to transform coordinate
  * @param   newPos[2]   float array of the (x, y) coordinate point
  **/
-void addPoint(std::vector<float> &posXYZ, std::vector<float> &texCoordUV, const float newPos[2])
+void addPoint(std::vector<float> &posXYZ, std::vector<float> &texCoordUV, float min, float max, const float newPos[2])
 {
-    posXYZ.push_back(newPos[0]);
+    const float factor = max - min;
+    posXYZ.push_back(newPos[0] * factor + min);
     posXYZ.push_back(0.0f);
-    posXYZ.push_back(newPos[1]);
+    posXYZ.push_back(newPos[1] * factor + min);
     texCoordUV.insert(texCoordUV.end(), newPos, newPos + 2);
 }
 
@@ -35,7 +38,7 @@ std::vector<float> generateMesh(int n, float min, float max)
     std::vector<float> posXYZ;
     std::vector<float> texCoordUV;
 
-    const float factor = static_cast<float>(max - min) / static_cast<float>(n);
+    const float numSquares = static_cast<float>(n);
 
     for(int i = 0; i < n; i++)
     {
@@ -45,17 +48,17 @@ std::vector<float> generateMesh(int n, float min, float max)
             float y = static_cast<float>(j);
 
             // we map from [0, 1] => [min, max]
-            float topLeft[2]     = { x       * factor + min, y * factor + min };
-            float topRight[2]    = { (x + 1) * factor + min, y * factor + min };
-            float bottomLeft[2]  = { x       * factor + min, (y + 1) * factor + min };
-            float bottomRight[2] = { (x + 1) * factor + min, (y + 1) * factor + min };
+            float topLeft[2]     = { x       / numSquares, y / numSquares };
+            float topRight[2]    = { (x + 1) / numSquares, y / numSquares };
+            float bottomLeft[2]  = { x       / numSquares, (y + 1) / numSquares };
+            float bottomRight[2] = { (x + 1) / numSquares, (y + 1) / numSquares };
 
-            addPoint(posXYZ, texCoordUV, topLeft);
-            addPoint(posXYZ, texCoordUV, bottomLeft);
-            addPoint(posXYZ, texCoordUV, bottomRight);
-            addPoint(posXYZ, texCoordUV, topLeft);
-            addPoint(posXYZ, texCoordUV, bottomRight);
-            addPoint(posXYZ, texCoordUV, topRight);
+            addPoint(posXYZ, texCoordUV, min, max, topLeft);
+            addPoint(posXYZ, texCoordUV, min, max, bottomLeft);
+            addPoint(posXYZ, texCoordUV, min, max, topRight);
+            addPoint(posXYZ, texCoordUV, min, max, topRight);
+            addPoint(posXYZ, texCoordUV, min, max, bottomLeft);
+            addPoint(posXYZ, texCoordUV, min, max, bottomRight);
         } 
     } 
     posXYZ.insert(posXYZ.end(), texCoordUV.begin(), texCoordUV.end());
