@@ -10,6 +10,7 @@ layout (triangles, equal_spacing, ccw) in;
 uniform mat4 view;
 uniform mat4 proj;
 uniform mat4 model;
+uniform sampler2D heightTex;
 
 in vec2 TextureCoord[];
 out vec2 texCoord;
@@ -28,5 +29,6 @@ void main() {
 
     vec4 position = p0 * gl_TessCoord[0] + p1 * gl_TessCoord[1] + p2 * gl_TessCoord[2];
 
+    position.y += texture(heightTex, texCoord).r;
     gl_Position = proj * view * model * position;
 } 

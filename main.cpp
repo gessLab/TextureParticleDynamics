@@ -20,9 +20,9 @@ Date Created: Janurary 26, 2025
 constexpr int RESX = 1280;
 constexpr int RESY = 720;
 
-GLuint vbo, vao, vert, frag, geom, program, tex, tessEvaluation, tessControl;
+GLuint vbo, vao, vert, frag, geom, program, tex, tessEvaluation, tessControl, heightTex;
 GLsizei verts;
-GLint uniProj, uniView, uniModel, uniTex;
+GLint uniProj, uniView, uniModel, uniTex, uniHeightTex;
 
 void buildShaders();
 void closeShaders();
@@ -82,8 +82,29 @@ int main(int argc, char** argv)
 	buildShaders();
 	buildBuffers();
 
+    // Load the height map displacement.
+    SDL_Surface* heightmap = SDL_LoadBMP("height-map.bmp");
+
+    if(heightmap == nullptr) {
+        std::cout << "ERROR::HEIGHTMAP::couldn't load bmp" << std::endl;
+        std::cout << SDL_GetError() << std::endl;
+        return 5;
+    } 
+
+    glGenTextures(1, &heightTex); // number of textures; ID
+    glBindTexture(GL_TEXTURE_2D, heightTex);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, heightmap->w, heightmap->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, heightmap->pixels);
+    SDL_DestroySurface(heightmap);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
 	DynamicTexture dt;
 	dt.uploadTexture(tex);
+
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	glm::mat4 camera = glm::lookAt(glm::vec3(0.1f, 2.5f, 0.1f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::mat4 proj = glm::perspective(
@@ -119,14 +140,20 @@ int main(int argc, char** argv)
 			}
 		}
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glActiveTexture(GL_TEXTURE0);
 		dt.updateTexture(rotAxis, rotAng);
 		dt.uploadTexture(tex);
 		glBindVertexArray(vao);
 		glUseProgram(program);
 
-		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, tex);
-		//glUniform1i(uniTex, 0);
+		glUniform1i(uniTex, 0);
+
+        glActiveTexture(GL_TEXTURE0 + 1);
+		glBindTexture(GL_TEXTURE_2D, heightTex);
+		glUniform1i(uniHeightTex, 1);
+
 		glUniformMatrix4fv(uniProj, 1, GL_FALSE,
 			glm::value_ptr(proj));
 		glUniformMatrix4fv(uniView, 1, GL_FALSE,
@@ -226,6 +253,7 @@ void buildShaders()
 	uniView = glGetUniformLocation(program, "view");
 	uniModel = glGetUniformLocation(program, "model");
 	uniTex = glGetUniformLocation(program, "tex");
+    uniHeightTex = glGetUniformLocation(program, "heightTex");
 }
 
 void closeShaders()
@@ -236,23 +264,7 @@ void closeShaders()
 
 void buildBuffers()
 {
-    /*
-	std::vector<float> mesh = {
-		-1.0f, 0.0f, -1.0f,
-		-1.0f, 0.0f, 1.0f,
-		1.0f, 0.0f, -1.0f,
-		1.0f, 0.0f, -1.0f,
-		-1.0f, 0.0f, 1.0f,
-		1.0f, 0.0f, 1.0f,
-		0.0f, 1.0f,
-		0.0f, 0.0f,
-		1.0f, 1.0f,
-		1.0f, 1.0f,
-		0.0f, 0.0f,
-		1.0f, 0.0f
-	};
-    */
-    const int numSquares = 1;
+    const int numSquares = 4;
     std::vector<float> mesh = generateMesh(numSquares, -1, 1);
 	verts = numSquares * numSquares * 6;
 

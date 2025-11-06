@@ -25,5 +25,6 @@ void main()
 
 	vTexCoord = uv;
     // the /100 is arbitrary
-	gl_Position = vec4(pos.x, pos.y + data.a/100.0, pos.z, 1.0);
+	// gl_Position = vec4(pos.x, pos.y + data.a/100.0, pos.z, 1.0);
+    gl_Position = vec4(pos, 1.0);
 }
