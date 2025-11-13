@@ -24,9 +24,9 @@ void main() {
     vec2 t11 = TextureCoord[3];
 
     // bilinear interpolation
-    vec2 t0 = (t01 - t00) * gl_TessCoord.x + t00;
-    vec2 t1 = (t10 - t11) * gl_TessCoord.x + t11;
-    texCoord = (t1 - t0) * gl_TessCoord.y + t0;
+    vec2 t0 = (t01 - t00) * gl_TessCoord.y + t00;
+    vec2 t1 = (t10 - t11) * gl_TessCoord.y + t11;
+    texCoord = (t1 - t0) * gl_TessCoord.x + t0;
     // texCoord.x = clamp(texCoord.x, 0.0, 0.9);
 
     vec4 p00 = gl_in[0].gl_Position;
@@ -34,9 +34,9 @@ void main() {
     vec4 p10 = gl_in[2].gl_Position;
     vec4 p11 = gl_in[3].gl_Position;
 
-    vec4 p0 = (p01 - p00) * gl_TessCoord.x + p00;
-    vec4 p1 = (p10 - p11) * gl_TessCoord.x + p11;
-    vec4 position = (p1 - p0) * gl_TessCoord.y + p0;
+    vec4 p0 = (p01 - p00) * gl_TessCoord.y + p00;
+    vec4 p1 = (p10 - p11) * gl_TessCoord.y + p11;
+    vec4 position = (p1 - p0) * gl_TessCoord.x + p0;
 
     position.y += texture(heightTex, texCoord).r;
     // position.y = sin(position.x);

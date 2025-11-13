@@ -1,5 +1,5 @@
-/* Author: Daniel Rehberg
-Date Modified: September 25, 2025
+/* Author: Daniel Rehberg, Henry Jochaniewicz
+Date Modified: November 13, 2025
 */
 
 #version 410
@@ -11,6 +11,7 @@ in vec3 normal;
 
 // The texture containing our height data
 uniform usampler2D tex;
+uniform sampler2D heightTex;
 
 void main()
 {
@@ -29,4 +30,5 @@ void main()
     
     // Set the final output color with full opacity
     color = vec4(finalColor, 1.0);
+    color = vec4(texture(heightTex, theTexCoord).rrr, 1.0);
 }

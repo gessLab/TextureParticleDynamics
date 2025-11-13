@@ -164,7 +164,7 @@ int main(int argc, char** argv)
 
 		SDL_GL_SwapWindow(window);
 		size_t ticks = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
-		// std::cout << "ticks: " << ticks << " ms\n";
+		std::cout << "ticks: " << ticks << " ms\n";
 	}
 
 	//DESTRUCTION
@@ -264,7 +264,7 @@ void closeShaders()
 
 void buildBuffers()
 {
-    const int numSquares = 8;
+    const int numSquares = 4;
     std::vector<float> mesh = generateMesh(numSquares, -1, 1);
 	verts = numSquares * numSquares * 4;
 
