@@ -93,8 +93,8 @@ int main(int argc, char** argv)
 
     glGenTextures(1, &heightTex); // number of textures; ID
     glBindTexture(GL_TEXTURE_2D, heightTex);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT );
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,  GL_MIRRORED_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, heightmap->w, heightmap->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, heightmap->pixels);
@@ -106,17 +106,17 @@ int main(int argc, char** argv)
 
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+    glm::vec3 viewDir = glm::normalize(glm::vec3(0.0f, 0.0f, 0.0f) - glm::vec3(0.1f, 2.5f, 0.1f));
 	glm::mat4 camera = glm::lookAt(glm::vec3(0.1f, 2.5f, 0.1f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::mat4 proj = glm::perspective(
 		glm::radians(75.0f), 16.0f / 9.0f,
-		1.0f, 10.0f
+		0.2f, 10.0f
 	);
 
 	SDL_Event e;
 	bool quit = false;
 	std::chrono::time_point<std::chrono::steady_clock> start;
 
-    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	while (!quit)
 	{
 		start = std::chrono::steady_clock::now();
@@ -164,7 +164,7 @@ int main(int argc, char** argv)
 
 		SDL_GL_SwapWindow(window);
 		size_t ticks = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
-		std::cout << "ticks: " << ticks << " ms\n";
+		// std::cout << "ticks: " << ticks << " ms\n";
 	}
 
 	//DESTRUCTION
@@ -264,9 +264,9 @@ void closeShaders()
 
 void buildBuffers()
 {
-    const int numSquares = 4;
+    const int numSquares = 8;
     std::vector<float> mesh = generateMesh(numSquares, -1, 1);
-	verts = numSquares * numSquares * 6;
+	verts = numSquares * numSquares * 4;
 
 	glGenVertexArrays(1, &vao);
 	glGenBuffers(1, &vbo);
@@ -278,7 +278,7 @@ void buildBuffers()
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*) (uintptr_t) (4 * 3 * verts));
 
-    glPatchParameteri(GL_PATCH_VERTICES, 3);
+    glPatchParameteri(GL_PATCH_VERTICES, 4);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);

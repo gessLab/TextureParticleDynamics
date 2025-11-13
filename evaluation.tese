@@ -1,11 +1,12 @@
 /*
  * Author: Henry Jochaniewicz
- * Date Modified: October 1, 2025
+ * Date Modified: November 12, 2025
+ * Main ideas borrowed from https://learnopengl.com/Guest-Articles/2021/Tessellation/Tessellation.
  */
 
 #version 410 core
 
-layout (triangles, equal_spacing, ccw) in;
+layout (quads, fractional_odd_spacing, ccw) in;
 
 uniform mat4 view;
 uniform mat4 proj;
@@ -17,18 +18,28 @@ out vec2 texCoord;
 
 void main() {
     // gl_TessCoord in barycentric coordinates
-    vec2 t0 = TextureCoord[0]; 
-    vec2 t1 = TextureCoord[1]; 
-    vec2 t2 = TextureCoord[2]; 
+    vec2 t00 = TextureCoord[0]; 
+    vec2 t01 = TextureCoord[1]; 
+    vec2 t10 = TextureCoord[2]; 
+    vec2 t11 = TextureCoord[3];
 
-    texCoord = t0 * gl_TessCoord[0] + t1 * gl_TessCoord[1] + t2 * gl_TessCoord[2];
+    // bilinear interpolation
+    vec2 t0 = (t01 - t00) * gl_TessCoord.x + t00;
+    vec2 t1 = (t10 - t11) * gl_TessCoord.x + t11;
+    texCoord = (t1 - t0) * gl_TessCoord.y + t0;
+    // texCoord.x = clamp(texCoord.x, 0.0, 0.9);
 
-    vec4 p0 = gl_in[0].gl_Position;
-    vec4 p1 = gl_in[1].gl_Position;
-    vec4 p2 = gl_in[2].gl_Position;
+    vec4 p00 = gl_in[0].gl_Position;
+    vec4 p01 = gl_in[1].gl_Position;
+    vec4 p10 = gl_in[2].gl_Position;
+    vec4 p11 = gl_in[3].gl_Position;
 
-    vec4 position = p0 * gl_TessCoord[0] + p1 * gl_TessCoord[1] + p2 * gl_TessCoord[2];
+    vec4 p0 = (p01 - p00) * gl_TessCoord.x + p00;
+    vec4 p1 = (p10 - p11) * gl_TessCoord.x + p11;
+    vec4 position = (p1 - p0) * gl_TessCoord.y + p0;
 
     position.y += texture(heightTex, texCoord).r;
+    // position.y = sin(position.x);
+    
     gl_Position = proj * view * model * position;
 } 

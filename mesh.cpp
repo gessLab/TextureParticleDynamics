@@ -1,6 +1,6 @@
 /*
  * Author: Henry Jochaniewicz
- * Date Modified: November 5, 2025
+ * Date Modified: November 12, 2025
  */
 
 #include <vector>
@@ -53,12 +53,18 @@ std::vector<float> generateMesh(int n, float min, float max)
             float bottomLeft[2]  = { x       / numSquares, (y + 1) / numSquares };
             float bottomRight[2] = { (x + 1) / numSquares, (y + 1) / numSquares };
 
+            /*
             addPoint(posXYZ, texCoordUV, min, max, topLeft);
             addPoint(posXYZ, texCoordUV, min, max, bottomLeft);
             addPoint(posXYZ, texCoordUV, min, max, topRight);
             addPoint(posXYZ, texCoordUV, min, max, topRight);
             addPoint(posXYZ, texCoordUV, min, max, bottomLeft);
             addPoint(posXYZ, texCoordUV, min, max, bottomRight);
+            */
+            addPoint(posXYZ, texCoordUV, min, max, bottomLeft);
+            addPoint(posXYZ, texCoordUV, min, max, bottomRight);
+            addPoint(posXYZ, texCoordUV, min, max, topRight);
+            addPoint(posXYZ, texCoordUV, min, max, topLeft);
         } 
     } 
     posXYZ.insert(posXYZ.end(), texCoordUV.begin(), texCoordUV.end());
