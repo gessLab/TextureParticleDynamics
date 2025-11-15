@@ -8,13 +8,12 @@
 
 layout (quads, fractional_odd_spacing, ccw) in;
 
-uniform mat4 view;
-uniform mat4 proj;
 uniform mat4 model;
 uniform sampler2D heightTex;
 
 in vec2 TextureCoord[];
 out vec2 texCoord;
+out vec4 position;
 
 void main() {
     // gl_TessCoord in barycentric coordinates
@@ -36,10 +35,12 @@ void main() {
 
     vec4 p0 = (p01 - p00) * gl_TessCoord.y + p00;
     vec4 p1 = (p10 - p11) * gl_TessCoord.y + p11;
-    vec4 position = (p1 - p0) * gl_TessCoord.x + p0;
+    vec4 thisPosition = (p1 - p0) * gl_TessCoord.x + p0;
 
-    position.y += texture(heightTex, texCoord).r;
+    thisPosition.y += texture(heightTex, texCoord).r;
     // position.y = sin(position.x);
+
+    position = thisPosition;
     
-    gl_Position = proj * view * model * position;
+    gl_Position = model * thisPosition;
 } 

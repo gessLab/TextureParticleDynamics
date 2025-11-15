@@ -19,11 +19,10 @@ void main() {
     TextureCoord[gl_InvocationID] = vTexCoord[gl_InvocationID];
 
     if(gl_InvocationID == 0) {
-        const int MAX_TESS_LEVEL = 16;
-
-        /*
+        const int MAX_TESS_LEVEL = 32;
         const int MIN_TESS_LEVEL = 2;
 
+        /*
         const float MIN_DISTANCE = 0.0;
         const float MAX_DISTANCE = 2.5;
 
@@ -37,23 +36,23 @@ void main() {
         float d2 = clamp((abs(eyeSpaceP2.z)-MIN_DISTANCE) / (MAX_DISTANCE-MIN_DISTANCE), 0.0, 1.0);
         float d3 = clamp((abs(eyeSpaceP3.z)-MIN_DISTANCE) / (MAX_DISTANCE-MIN_DISTANCE), 0.0, 1.0);
 
-        float tessLevel0 = mix(MAX_TESS_LEVEL, MIN_TESS_LEVEL, min(d0, d1));
-        float tessLevel1 = mix(MAX_TESS_LEVEL, MIN_TESS_LEVEL, min(d1, d2));
-        float tessLevel2 = mix(MAX_TESS_LEVEL, MIN_TESS_LEVEL, min(d2, d3));
-        float tessLevel3 = mix(MAX_TESS_LEVEL, MIN_TESS_LEVEL, min(d3, d0));
-
-        float tessLevel0 = mix(MAX_TESS_LEVEL, MIN_TESS_LEVEL, d0);
-        float tessLevel1 = mix(MAX_TESS_LEVEL, MIN_TESS_LEVEL, d0);
-        float tessLevel2 = mix(MAX_TESS_LEVEL, MIN_TESS_LEVEL, d0);
-        float tessLevel3 = mix(MAX_TESS_LEVEL, MIN_TESS_LEVEL, d0);
+        float tessLevel0 = mix(MAX_TESS_LEVEL, MIN_TESS_LEVEL, min(d0, d3));
+        float tessLevel1 = mix(MAX_TESS_LEVEL, MIN_TESS_LEVEL, min(d0, d1));
+        float tessLevel2 = mix(MAX_TESS_LEVEL, MIN_TESS_LEVEL, min(d1, d2));
+        float tessLevel3 = mix(MAX_TESS_LEVEL, MIN_TESS_LEVEL, min(d2, d3));
 
         gl_TessLevelOuter[0] = tessLevel0;
         gl_TessLevelOuter[1] = tessLevel1;
         gl_TessLevelOuter[2] = tessLevel2;
         gl_TessLevelOuter[3] = tessLevel3;
 
-        gl_TessLevelInner[0] = max(tessLevel1, tessLevel2);
-        gl_TessLevelInner[1] = max(tessLevel2, tessLevel3);
+        gl_TessLevelInner[0] = max(tessLevel1, tessLevel3);
+        gl_TessLevelInner[1] = max(tessLevel0, tessLevel2);
+
+        float tessLevel0 = mix(MAX_TESS_LEVEL, MIN_TESS_LEVEL, d0);
+        float tessLevel1 = mix(MAX_TESS_LEVEL, MIN_TESS_LEVEL, d0);
+        float tessLevel2 = mix(MAX_TESS_LEVEL, MIN_TESS_LEVEL, d0);
+        float tessLevel3 = mix(MAX_TESS_LEVEL, MIN_TESS_LEVEL, d0);
         */
 
         gl_TessLevelOuter[0] = MAX_TESS_LEVEL;

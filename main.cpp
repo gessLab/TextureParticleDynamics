@@ -83,7 +83,7 @@ int main(int argc, char** argv)
 	buildBuffers();
 
     // Load the height map displacement.
-    SDL_Surface* heightmap = SDL_LoadBMP("height-map.bmp");
+    SDL_Surface* heightmap = SDL_LoadBMP("heightmap2.bmp");
 
     if(heightmap == nullptr) {
         std::cout << "ERROR::HEIGHTMAP::couldn't load bmp" << std::endl;
@@ -97,7 +97,7 @@ int main(int argc, char** argv)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,  GL_MIRRORED_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, heightmap->w, heightmap->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, heightmap->pixels);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, heightmap->w, heightmap->h, 0, GL_RGB, GL_UNSIGNED_BYTE, heightmap->pixels);
     SDL_DestroySurface(heightmap);
     glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -164,7 +164,7 @@ int main(int argc, char** argv)
 
 		SDL_GL_SwapWindow(window);
 		size_t ticks = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
-		std::cout << "ticks: " << ticks << " ms\n";
+		// std::cout << "ticks: " << ticks << " ms\n";
 	}
 
 	//DESTRUCTION
@@ -220,8 +220,8 @@ void buildShaders()
 {
     std::string shader;
     buildShader(shader, "vert.txt", GL_VERTEX_SHADER, "VERTEX", vert);
-    buildShader(shader, "frag.txt", GL_FRAGMENT_SHADER, "FRAGMENT", frag);
-    buildShader(shader, "geom.txt", GL_GEOMETRY_SHADER, "GEOMETRY", geom);
+    buildShader(shader, "frag.frag", GL_FRAGMENT_SHADER, "FRAGMENT", frag);
+    buildShader(shader, "geom.geom", GL_GEOMETRY_SHADER, "GEOMETRY", geom);
     buildShader(shader, "control.tesc", GL_TESS_CONTROL_SHADER, "TESS_CONTROL", tessControl);
     buildShader(shader, "evaluation.tese", GL_TESS_EVALUATION_SHADER, "TESS_EVALUATION", tessEvaluation);
 
@@ -264,7 +264,7 @@ void closeShaders()
 
 void buildBuffers()
 {
-    const int numSquares = 4;
+    const int numSquares = 8;
     std::vector<float> mesh = generateMesh(numSquares, -1, 1);
 	verts = numSquares * numSquares * 4;
 
