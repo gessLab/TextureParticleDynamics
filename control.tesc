@@ -1,6 +1,6 @@
 /*
  * Author: Henry Jochaniewicz
- * Date Modified: November 13, 2025
+ * Date Modified: November 20, 2025
  */
 
 #version 410 core
@@ -19,7 +19,7 @@ void main() {
     TextureCoord[gl_InvocationID] = vTexCoord[gl_InvocationID];
 
     if(gl_InvocationID == 0) {
-        const int MAX_TESS_LEVEL = 32;
+        const int MAX_TESS_LEVEL = 16;
         const int MIN_TESS_LEVEL = 2;
 
         /*

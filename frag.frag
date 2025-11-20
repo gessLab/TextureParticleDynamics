@@ -1,5 +1,5 @@
 /* Author: Daniel Rehberg, Henry Jochaniewicz
-Date Modified: November 13, 2025
+Date Modified: November 20, 2025
 */
 
 #version 410
@@ -15,42 +15,55 @@ smooth in vec4 thePosition;
 uniform usampler2D tex;
 uniform sampler2D heightTex;
 
+float random (vec2 st) {
+    return fract(sin(dot(st.xy,
+                         vec2(12.9898,78.233)))*
+        43758.5453123);
+}
+
 vec3 dynamicTextureColor() {
     // Fetch the raw data from the texture
     uvec4 data = texture(tex, theTexCoord);
-    
+
     // Normalize the height value (alpha channel) to a 0.0 to 1.0 range
     float height = float(data.a) / 255.0f;
-    
+
     // Define the colors for our sand dune gradient
-    vec3 lowColor = vec3(0.76, 0.65, 0.45);  // Dark Sand
-    vec3 highColor = vec3(0.9, 0.8, 0.5); // Light Sandy Yellow
-    
+    vec3 lowColor = vec3(0.6, 0.5, 0.3);  // Dark Sand
+    vec3 highColor = vec3(1.0, 0.7, 0.5); // Light Sandy Yellow
+
     // Blend between the two colors based on the height
-    return mix(vec3(0.0), vec3(1.0), height);
-} 
+    return mix(lowColor, highColor, height);
+    // return mix(vec3(0.0), vec3(1.0), height);
+}
 
 void main()
 {
     vec3 lightColor = vec3(1.0);
-    vec3 objectColor = vec3(0.9, 0.6, 0.2);
 
+    // TODO: for some reason, rotating the mesh does not rotate the positions of the vertices.
     vec3 lightSource = vec3(0.0f, -2.0f, 0.0f);
 
+    // light directions
     vec3 eye = normalize(vec3(0.0) - thePosition.xyz);
     vec3 light = normalize(lightSource - thePosition.xyz);
     vec3 reflectDir = reflect(-light, normal);
 
     vec3 ambient = 0.1 * lightColor;
-    vec3 diffuse = lightColor * max(0.0, dot(normal, light));
-    vec3 specular = lightColor * 0.5 * pow(max(dot(eye, reflectDir), 0.0), 8);
+    vec3 diffuse = max(0.0, dot(normal, light)) * lightColor;
+    float specularPower = 4.0 + random(theTexCoord) * 4.0;
 
-    vec3 dynamicColor = dynamicTextureColor();
-    
-    // Set the final output color with full opacity
-    float map = texture(heightTex, theTexCoord).r;
+    // a little sparkle randomization. Currently no time element,
+    // so it's kind of hard to see.
+    float sparkle = smoothstep(0.95, 1.0, random(theTexCoord));
+    vec3 sparkleColor = vec3(1.0, 0.9, 0.7);
 
-    color = vec4(vec3(map), 1.0);
-    color = vec4(min(lightColor, (specular + diffuse + ambient) * objectColor), 1.0);
+    vec3 specular = 0.125 * pow(max(dot(eye, reflectDir), 0.0), 12.0) * lightColor;
+
+    // vec3 objectColor = dynamicTextureColor();
+    vec3 objectColor = vec3(1.0, 0.7, 0.5); 
+
+    vec3 outputColor = min(lightColor, (specular + diffuse + ambient) * objectColor);
+    color = vec4(outputColor, 1.0);
 }
 

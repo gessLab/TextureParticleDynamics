@@ -1,6 +1,6 @@
 /*
  * Author: Henry Jochaniewicz
- * Date Modified: November 12, 2025
+ * Date Modified: November 20, 2025
  * Main ideas borrowed from https://learnopengl.com/Guest-Articles/2021/Tessellation/Tessellation.
  */
 
@@ -10,6 +10,7 @@ layout (quads, fractional_odd_spacing, ccw) in;
 
 uniform mat4 model;
 uniform sampler2D heightTex;
+uniform usampler2D tex;
 
 in vec2 TextureCoord[];
 out vec2 texCoord;
@@ -38,7 +39,7 @@ void main() {
     vec4 thisPosition = (p1 - p0) * gl_TessCoord.x + p0;
 
     thisPosition.y += texture(heightTex, texCoord).r;
-    // position.y = sin(position.x);
+    thisPosition.y += float(texture(tex, texCoord).a) / 255.0 / 1.0;
 
     position = thisPosition;
     
