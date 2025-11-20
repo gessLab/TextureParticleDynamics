@@ -8,6 +8,7 @@ Date Modified: Janurary 26, 2025
 
 #include <GL/glew.h>
 #include <SDL3/SDL_opengl.h>
+#include <SDL3/SDL_surface.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <atomic>
@@ -18,7 +19,7 @@ constexpr size_t DIM = 64;
 class DynamicTexture
 {
 public:
-	DynamicTexture();// size_t width, size_t height);
+	DynamicTexture(SDL_Surface* heightmap, float heightRatio);// size_t width, size_t height);
 	~DynamicTexture();
 	const glm::mat4& getModel() const;
 	void updateTexture(const glm::vec3& axis, const float angle);
@@ -35,7 +36,8 @@ private:
 	//		A: Total number of particles a current texel
 	std::uint8_t* texels; //Avoiding volatile for now :), but might become necessary
 	glm::mat4 model;
-
+    SDL_Surface* heightmap;
+    float heightRatio;
 };
 
 #endif

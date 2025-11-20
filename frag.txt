@@ -20,16 +20,18 @@ void main()
 
     // Normalize the height value (alpha channel) to a 0.0 to 1.0 range
     float height = float(data.a) / 255.0f;
+    float other = texture(heightTex, theTexCoord).r;
 
     // Define the colors for our sand dune gradient
-    vec3 lowColor = vec3(0.76, 0.65, 0.45);  // Dark Sand
-    // vec3 lowColor = vec3(0.0, 0.0, 0.0);  // Dark Sand
-    vec3 highColor = vec3(0.9, 0.8, 0.5); // Light Sandy Yellow
+    // vec3 lowColor = vec3(0.76, 0.65, 0.45);  // Dark Sand
+    vec3 lowColor = vec3(0.0, 0.0, 1.0);  // Blue
+    // vec3 highColor = vec3(0.9, 0.8, 0.5); // Light Sandy Yellow
+    vec3 highColor = vec3(0.0, 1.0, 0.0);  // Yellow
 
     // Blend between the two colors based on the height
-    vec3 finalColor = mix(lowColor, highColor, height);
+    vec3 finalColor = mix(lowColor, highColor, other);
 
     // Set the final output color with full opacity
-    color = vec4(finalColor, 1.0);
-    color = vec4(texture(heightTex, theTexCoord).rrr, 1.0);
+    color = vec4(height * vec3(1.0, 0.0, 0.0) + 0.2 * finalColor, 1.0);
+    // color = vec4(texture(heightTex, theTexCoord).rrr, 1.0);
 }

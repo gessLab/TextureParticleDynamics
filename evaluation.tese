@@ -38,7 +38,8 @@ void main() {
     vec4 p1 = (p10 - p11) * gl_TessCoord.y + p11;
     vec4 position = (p1 - p0) * gl_TessCoord.x + p0;
 
-    position.y += texture(heightTex, texCoord).r;
+    position.y += 4.0 * texture(heightTex, texCoord).r;
+    position.y -= 3.0 * texture(heightTex, vec2(0.5, 0.5)).r;
     // position.y = sin(position.x);
 
     gl_Position = proj * view * model * position;

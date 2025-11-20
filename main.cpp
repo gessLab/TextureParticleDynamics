@@ -11,6 +11,7 @@ Date Created: Janurary 26, 2025
 #include <SDL3/SDL.h>
 #include <GL/glew.h>
 #include <SDL3/SDL_opengl.h>
+#include <SDL3/SDL_surface.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -98,10 +99,9 @@ int main(int argc, char** argv)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, heightmap->w, heightmap->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, heightmap->pixels);
-    SDL_DestroySurface(heightmap);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-	DynamicTexture dt;
+	DynamicTexture dt(heightmap, 0.25);
 	dt.uploadTexture(tex);
 
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -164,7 +164,7 @@ int main(int argc, char** argv)
 
 		SDL_GL_SwapWindow(window);
 		size_t ticks = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
-		std::cout << "ticks: " << ticks << " ms\n";
+		// std::cout << "ticks: " << ticks << " ms\n";
 	}
 
 	//DESTRUCTION

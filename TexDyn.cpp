@@ -7,7 +7,16 @@ Date Modified: Janurary 26, 2025
 #include "TexDyn.hpp"
 #include "ThreadPool.hpp"
 
-DynamicTexture::DynamicTexture() : model(1.0f), texels(nullptr), w(DIM), h(DIM)
+// Perhaps this is somewhat hacky, depending on how we want to separate concerns.
+// The SDL_Surface is used solely for its pixel array.
+typedef struct KernelData {
+    std::uint8_t* texels;
+    const SDL_Surface* heightmap;
+    float heightRatio;
+} KernelData;
+
+DynamicTexture::DynamicTexture(SDL_Surface* heightmap, float heightRatio)
+    : model(1.0f), texels(nullptr), w(DIM), h(DIM), heightmap(heightmap), heightRatio(heightRatio)
 {
 	//model[3][2] = -200.0f;
 	//model = glm::rotate(model, (90.0f),
@@ -28,6 +37,7 @@ DynamicTexture::DynamicTexture() : model(1.0f), texels(nullptr), w(DIM), h(DIM)
 DynamicTexture::~DynamicTexture()
 {
 	if (texels != nullptr) delete[] texels;
+    SDL_DestroySurface(heightmap);
 }
 
 const glm::mat4& DynamicTexture::getModel() const
@@ -83,7 +93,11 @@ void integrate(std::mutex& m, size_t begin, size_t end, void* data)
 void kernelHorizontal(std::mutex& m, size_t begin, size_t end, void* data)
 {
 	size_t row = begin / DIM, col = (begin % DIM) - 1;//NOTE: preemptively subtracting 1 as we start the for-loop by incrementing
-	std::uint8_t* ref = static_cast<std::uint8_t*>(data);
+    KernelData* kernelData = static_cast<KernelData*>(data);
+	std::uint8_t* ref = kernelData->texels;
+    std::uint8_t* pixels = static_cast<std::uint8_t*>(kernelData->heightmap->pixels);
+    size_t pixelW = kernelData->heightmap->w;
+    size_t pixelH = kernelData->heightmap->h;
 	//if row 0, then cannot access anything above
 	//if column 0, then cannot access anything on the left
 	//if column == MAX - 1, then cann access right
@@ -105,12 +119,20 @@ void kernelHorizontal(std::mutex& m, size_t begin, size_t end, void* data)
 		//Particle movement is only allowed if stacks have different heights
 		//	AND, this texel's particle stack cannot exceed 255
 
-		if (ref[index + 3] == 255)continue;//no room to accept new particles
+        uint8_t thisHeight = ref[index + 3];
+        uint8_t thisPixel = pixels[3 * ((col % pixelW) + (row % pixelH) * pixelW)];
+		if (thisHeight == 255)continue;//no room to accept new particles
 
 		//Check left, particle stack must be greater than , but corner case(s) as well
 		if (col != 0)
 		{
-			if (ref[index + 3] <= ref[index - 1] && ref[index - 1] > 0)
+            uint8_t leftHeight = ref[index - 1];
+            uint8_t leftPixel = pixels[3 * (((col - 1) % pixelW) + (row % pixelH) * pixelW)];
+
+            float heightDiff = static_cast<float>(leftHeight) - static_cast<float>(thisHeight)
+                + kernelData->heightRatio * (static_cast<float>(leftPixel) - static_cast<float>(thisPixel));
+
+			if (heightDiff >= 0.0 && leftHeight > 0)
 			{
 				//Check left pixels velocity, stored in red byte
 				//	0: not moving; 1: moving left; 2: moving right
@@ -129,7 +151,13 @@ void kernelHorizontal(std::mutex& m, size_t begin, size_t end, void* data)
 		//	in one step, if gaining a left particle first still has the right particle being higher than this texel's stack
 		if (col != (DIM - 1))
 		{
-			if (ref[index + 3] <= ref[index + 7] && ref[index + 7] > 0)
+            uint8_t rightHeight = ref[index + 7];
+            uint8_t rightPixel = pixels[3 * (((col + 1) % pixelW) + (row % pixelH) * pixelW)];
+
+            float heightDiff = static_cast<float>(rightHeight) - static_cast<float>(thisHeight)
+                + kernelData->heightRatio * (static_cast<float>(rightPixel) - static_cast<float>(thisPixel));
+
+			if (heightDiff >= 0.0 && rightHeight > 0)
 			{
 				//same process as above, but checking right pixel
 				if (ref[index + 4] == 1)
@@ -146,7 +174,11 @@ void kernelHorizontal(std::mutex& m, size_t begin, size_t end, void* data)
 void kernelVertical(std::mutex& m, size_t begin, size_t end, void* data)
 {
 	size_t row = begin / DIM, col = (begin % DIM) - 1;//NOTE: preemptively subtracting 1 as we start the for-loop by incrementing
-	std::uint8_t* ref = static_cast<std::uint8_t*>(data);
+	KernelData* kernelData = static_cast<KernelData*>(data);
+	std::uint8_t* ref = kernelData->texels;
+    std::uint8_t* pixels = static_cast<std::uint8_t*>(kernelData->heightmap->pixels);
+    size_t pixelW = kernelData->heightmap->w;
+    size_t pixelH = kernelData->heightmap->h;
 	//Vertical border
 	//if row 0, then cannot access anything in negative direction
 	//if row > MAX - 1, then cannot access positve direction
@@ -161,36 +193,50 @@ void kernelVertical(std::mutex& m, size_t begin, size_t end, void* data)
 			row += 1;
 		}
 
-		if (ref[index + 3] == 255)continue;//no room to accept new particles
+		uint8_t thisHeight = ref[index + 3];
+        uint8_t thisPixel = pixels[3 * ((col % pixelW) + (row % pixelH) * pixelW)];
+		if (thisHeight == 255)continue;//no room to accept new particles
 
-		//Check left, particle stack must be greater than , but corner case as well
+		//Check top, particle stack must be greater than , but corner case as well
 		if (row != 0)
 		{
-			if (ref[index + 3] <= ref[index - rowOffset + 3] && ref[index - rowOffset + 3] > 0)
+            uint8_t topHeight = ref[index - rowOffset + 3];
+            uint8_t topPixel = pixels[3 * ((col % pixelW) + ((row-1) % pixelH) * pixelW)];
+
+            float heightDiff = static_cast<float>(topHeight) - static_cast<float>(thisHeight)
+                + kernelData->heightRatio * (static_cast<float>(topPixel) - static_cast<float>(thisPixel));
+
+			if (heightDiff >= 0.0 && topHeight > 0)
 			{
-				//Check left pixels velocity, stored in red byte
+				//Check top pixels velocity, stored in red byte
 				//	0: not moving; 1: moving down; 2: moving up
 				if (ref[index - rowOffset] == 2)
 				{
-					//Acquire this particle rightward moving particle
+					//Acquire this particle downward moving particle
 					// this texel can modify self's g index
 					// this texel can modify that's b index
-					ref[index - rowOffset + 2] = 1;//that blue, will be -1 particle at left texel
+					ref[index - rowOffset + 2] = 1;//that blue, will be -1 particle at top texel
 					ref[index + 1] = 1;//this green, will be +1 particle at this texel
 					continue;
 				}
 			}
 		}
-		//NOTE: in the future, could consider accepting two particles from left and right
-		//	in one step, if gaining a left particle first still has the right particle being higher than this texel's stack
+		//NOTE: in the future, could consider accepting two particles from top and bottom
+		//	in one step, if gaining a top particle first still has the bottom particle being higher than this texel's stack
 		if (row != (DIM - 1))
 		{
-			if (ref[index + 3] <= ref[index + rowOffset + 3] && ref[index + rowOffset + 3] > 0)
+            uint8_t bottomHeight = ref[index + rowOffset + 3];
+            uint8_t bottomPixel = pixels[3 * ((col % pixelW) + ((row+1) % pixelH) * pixelW)];
+
+            float heightDiff = static_cast<float>(bottomHeight) - static_cast<float>(thisHeight)
+                + kernelData->heightRatio * (static_cast<float>(bottomPixel) - static_cast<float>(thisPixel));
+
+			if (heightDiff >= 0.0 && bottomHeight > 0)
 			{
 				//same process as above, but checking row below texel
 				if (ref[index + rowOffset] == 1)
 				{
-					//Acquire particle moving leftward
+					//Acquire particle moving upward
 					ref[index + rowOffset + 2] = 1;
 					ref[index + 1] = 1;
 				}
@@ -217,9 +263,16 @@ void DynamicTexture::updateTexture(const glm::vec3& axis, const float angle)
 		if (aoInt < 41) texels[0] = 1;
 		else if (aoInt > 159) texels[0] = 2;
 		else texels[0] = 0;
+
+        KernelData kernelData = KernelData {
+            .texels = texels,
+            .heightmap = heightmap,
+            .heightRatio = heightRatio,
+        };
+
 		//ThreadsPool::pool().dispatch(1024 * 1024, &(test), static_cast<void*>(texels), true);
 		ThreadsPool::pool().dispatch(w * h, &(integrate), static_cast<void*>(texels), true);
-		ThreadsPool::pool().dispatch(w * h, &(kernelHorizontal), static_cast<void*>(texels), true);
+		ThreadsPool::pool().dispatch(w * h, &(kernelHorizontal), static_cast<void*>(&kernelData), true);
 	}
 	else
 	{
@@ -232,9 +285,16 @@ void DynamicTexture::updateTexture(const glm::vec3& axis, const float angle)
 		if (aoInt < 41) texels[0] = 1;
 		else if (aoInt > 159) texels[0] = 2;
 		else texels[0] = 0;
+
+        KernelData kernelData = KernelData {
+            .texels = texels,
+            .heightmap = heightmap,
+            .heightRatio = heightRatio,
+        };
+
 		//ThreadsPool::pool().dispatch(1024 * 1024, &(test), static_cast<void*>(texels), true);
 		ThreadsPool::pool().dispatch(w * h, &(integrate), static_cast<void*>(texels), true);
-		ThreadsPool::pool().dispatch(w * h, &(kernelVertical), static_cast<void*>(texels), true);
+		ThreadsPool::pool().dispatch(w * h, &(kernelVertical), static_cast<void*>(&kernelData), true);
 	}
 	vertical = !vertical;
 }
