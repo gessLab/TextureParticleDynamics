@@ -47,7 +47,7 @@ void test(std::mutex& m, size_t begin, size_t end, void* data)
 		std::uint32_t val = r(generator);
 
 		ref[index] -= static_cast<std::uint8_t>((0xFF000000 & val) >> 24);
-		ref[index+1] -= static_cast<std::uint8_t>((0x00FF0000 & val) >> 16); 
+		ref[index+1] -= static_cast<std::uint8_t>((0x00FF0000 & val) >> 16);
 		ref[index+2] -= static_cast<std::uint8_t>((0x0000FF00 & val) >> 8);
 		ref[index+3] -= static_cast<std::uint8_t>(0x000000FF & val);
 		index += 4;
@@ -60,9 +60,9 @@ void integrate(std::mutex& m, size_t begin, size_t end, void* data)
 	//	Alpha particle change
 	//	Velocity
 	std::uint8_t* ref = static_cast<std::uint8_t*>(data);
-	
+
 	std::uint8_t aoi = ref[0];
-	
+
 	//two goals to achieve -- add together previous kernel particle quantity changes
 	size_t index = begin * 4;
 	for (size_t i = begin; i < end; ++i, index += 4)
@@ -203,8 +203,8 @@ void DynamicTexture::updateTexture(const glm::vec3& axis, const float angle)
 {
 	if (glm::dot(axis, axis) > 0.5f) model = glm::rotate(model, angle, axis);
 	glm::vec4 grav = glm::vec4(0.0f, -1.0f, 0.0f, 0.0f);
-	
-	
+
+
 	//Create a templated dispatch function for the thread pool class as well to pass owned data
 	if (!vertical)
 	{

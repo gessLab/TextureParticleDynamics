@@ -89,7 +89,7 @@ int main(int argc, char** argv)
         std::cout << "ERROR::HEIGHTMAP::couldn't load bmp" << std::endl;
         std::cout << SDL_GetError() << std::endl;
         return 5;
-    } 
+    }
 
     glGenTextures(1, &heightTex); // number of textures; ID
     glBindTexture(GL_TEXTURE_2D, heightTex);

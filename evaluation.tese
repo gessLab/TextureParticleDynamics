@@ -18,9 +18,9 @@ out vec2 texCoord;
 
 void main() {
     // gl_TessCoord in barycentric coordinates
-    vec2 t00 = TextureCoord[0]; 
-    vec2 t01 = TextureCoord[1]; 
-    vec2 t10 = TextureCoord[2]; 
+    vec2 t00 = TextureCoord[0];
+    vec2 t01 = TextureCoord[1];
+    vec2 t10 = TextureCoord[2];
     vec2 t11 = TextureCoord[3];
 
     // bilinear interpolation
@@ -40,6 +40,6 @@ void main() {
 
     position.y += texture(heightTex, texCoord).r;
     // position.y = sin(position.x);
-    
+
     gl_Position = proj * view * model * position;
-} 
+}

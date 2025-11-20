@@ -65,9 +65,9 @@ std::vector<float> generateMesh(int n, float min, float max)
             addPoint(posXYZ, texCoordUV, min, max, bottomRight);
             addPoint(posXYZ, texCoordUV, min, max, topRight);
             addPoint(posXYZ, texCoordUV, min, max, topLeft);
-        } 
-    } 
+        }
+    }
     posXYZ.insert(posXYZ.end(), texCoordUV.begin(), texCoordUV.end());
     return posXYZ;
-} 
+}
 
