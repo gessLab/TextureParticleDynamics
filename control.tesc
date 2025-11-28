@@ -24,7 +24,7 @@ void main() {
 
         /*
         const float MIN_DISTANCE = 0.0;
-        const float MAX_DISTANCE = 2.5;
+        const float MAX_DISTANCE = 2.0;
 
         vec4 eyeSpaceP0 = view * model * gl_in[0].gl_Position;
         vec4 eyeSpaceP1 = view * model * gl_in[1].gl_Position;
