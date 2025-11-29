@@ -42,7 +42,12 @@ void main()
     vec3 lightColor = vec3(1.0);
 
     // TODO: for some reason, rotating the mesh does not rotate the positions of the vertices.
-    vec3 lightSource = vec3(0.0f, -2.0f, 0.0f);
+    vec3 lightSource = vec3(0.0f, 1.0f, -0.5f);
+
+    /*
+    color = vec4(vec3(1.0f / pow(distance(lightSource, thePosition.xyz), 4.0) * 2.0f), 1.0);
+    return;
+    */
 
     // light directions
     vec3 eye = normalize(vec3(0.0) - thePosition.xyz);
@@ -51,19 +56,24 @@ void main()
 
     vec3 ambient = 0.1 * lightColor;
     vec3 diffuse = max(0.0, dot(normal, light)) * lightColor;
+
+    /*
     float specularPower = 4.0 + random(theTexCoord) * 4.0;
 
     // a little sparkle randomization. Currently no time element,
     // so it's kind of hard to see.
     float sparkle = smoothstep(0.95, 1.0, random(theTexCoord));
     vec3 sparkleColor = vec3(1.0, 0.9, 0.7);
+    */
 
     vec3 specular = 0.125 * pow(max(dot(eye, reflectDir), 0.0), 12.0) * lightColor;
 
     // vec3 objectColor = dynamicTextureColor();
     vec3 objectColor = vec3(1.0, 0.7, 0.5); 
 
-    vec3 outputColor = min(lightColor, (specular + diffuse + ambient) * objectColor);
+    vec3 lightStrength = (specular + diffuse + ambient) / (1.0 * length(light));
+
+    vec3 outputColor = min(lightColor, lightStrength * objectColor);
     color = vec4(outputColor, 1.0);
 }
 

@@ -41,7 +41,7 @@ void main() {
     thisPosition.y += texture(heightTex, texCoord).r;
     thisPosition.y += float(texture(tex, texCoord).a) / 255.0 / 1.0;
 
-    position = thisPosition;
+    position = model * thisPosition;
     
     gl_Position = model * thisPosition;
 } 
