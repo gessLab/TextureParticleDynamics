@@ -101,8 +101,8 @@ int main(int argc, char** argv)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, heightmap->w, heightmap->h, 0, GL_RGB, GL_UNSIGNED_BYTE, heightmap->pixels);
     
-    glUniform1i(uniHeightTexRes, heightmap->w);
-    glUniform1i(uniDynTexRes, DIM);
+    glUniform1f(uniHeightTexRes, static_cast<float>(heightmap->w));
+    glUniform1f(uniDynTexRes, static_cast<float>(DIM));
 
     std::cout << heightmap->w << std::endl;
 

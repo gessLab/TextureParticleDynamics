@@ -39,7 +39,7 @@ void main() {
     vec4 thisPosition = (p1 - p0) * gl_TessCoord.x + p0;
 
     thisPosition.y += texture(heightTex, texCoord).r;
-    thisPosition.y += float(texture(tex, texCoord).a) / 255.0 / 1.0;
+    // thisPosition.y += float(texture(tex, texCoord).a) / 255.0 / 1.0;
 
     position = model * thisPosition;
     
