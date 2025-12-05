@@ -10,6 +10,7 @@ layout(triangle_strip, max_vertices = 3) out;
 
 uniform mat4 view;
 uniform mat4 proj;
+uniform mat3 normalMat;
 
 smooth in vec2 texCoord[];
 smooth in vec4 position[];
@@ -27,7 +28,7 @@ vec3 GetNormal()
 
 void main()
 {
-    normal = GetNormal();
+    normal = normalMat * GetNormal();
 
     gl_Position = proj * view * gl_in[0].gl_Position;
     theTexCoord = texCoord[0];

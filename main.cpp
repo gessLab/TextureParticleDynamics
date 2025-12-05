@@ -2,6 +2,7 @@
 Author: Daniel Rehberg, Finley Huggins, Henry Jochaniewicz
 Date Created: Janurary 26, 2025
 */
+#define GLM_ENABLE_EXPERIMENTAL
 
 #include <iostream>
 #include <fstream>
@@ -14,6 +15,7 @@ Date Created: Janurary 26, 2025
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/string_cast.hpp>
 #include "TexDyn.hpp"
 #include "mesh.hpp"
 
@@ -22,7 +24,7 @@ constexpr int RESY = 720;
 
 GLuint vbo, vao, vert, frag, geom, program, tex, tessEvaluation, tessControl, heightTex;
 GLsizei verts;
-GLint uniProj, uniView, uniModel, uniTex, uniHeightTex;
+GLint uniProj, uniView, uniModel, uniTex, uniHeightTex, uniHeightTexRes, uniDynTexRes, uniNormalMat;
 
 void buildShaders();
 void closeShaders();
@@ -98,8 +100,15 @@ int main(int argc, char** argv)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, heightmap->w, heightmap->h, 0, GL_RGB, GL_UNSIGNED_BYTE, heightmap->pixels);
+    
+    glUniform1i(uniHeightTexRes, heightmap->w);
+    glUniform1i(uniDynTexRes, DIM);
+
+    std::cout << heightmap->w << std::endl;
+
     SDL_DestroySurface(heightmap);
     glBindTexture(GL_TEXTURE_2D, 0);
+
 
 	DynamicTexture dt;
 	dt.uploadTexture(tex);
@@ -160,6 +169,9 @@ int main(int argc, char** argv)
 			glm::value_ptr(camera));
 		glUniformMatrix4fv(uniModel, 1, GL_FALSE,
 			glm::value_ptr(dt.getModel()));
+        glUniformMatrix3fv(uniNormalMat, 1, GL_FALSE,
+            glm::value_ptr(glm::mat3(glm::transpose(glm::inverse(camera))))); 
+        // std::cout << glm::to_string(glm::mat3(glm::transpose(glm::inverse(camera * dt.getModel())))) << std::endl;
 		glDrawArrays(GL_PATCHES, 0, verts);
 
 		SDL_GL_SwapWindow(window);
@@ -254,6 +266,9 @@ void buildShaders()
 	uniModel = glGetUniformLocation(program, "model");
 	uniTex = glGetUniformLocation(program, "tex");
     uniHeightTex = glGetUniformLocation(program, "heightTex");
+    uniHeightTexRes = glGetUniformLocation(program, "heightTexRes");
+    uniDynTexRes = glGetUniformLocation(program, "dynTexRes");
+    uniNormalMat = glGetUniformLocation(program, "normalMat");
 }
 
 void closeShaders()

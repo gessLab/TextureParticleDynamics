@@ -14,12 +14,26 @@ smooth in vec4 thePosition;
 // The texture containing our height data
 uniform usampler2D tex;
 uniform sampler2D heightTex;
+uniform float heightTexRes;
+uniform float dynTexRes;
+// uniform mat3 normalMat;
+
+#define VOODOO_NUMBER 600.0
 
 float random (vec2 st) {
     return fract(sin(dot(st.xy,
                          vec2(12.9898,78.233)))*
         43758.5453123);
 }
+
+vec3 calculateNormal(vec2 uv) {
+    float difference = 1.0 / heightTexRes;
+    float above = texture(heightTex, theTexCoord + vec2(0.0, difference)).r ; // + texture(tex, theTexCoord + vec2(0.0, 1.0 / dynTexRes)).r;
+    float below = texture(heightTex, theTexCoord + vec2(0.0, -difference)).r; // + texture(tex, theTexCoord + vec2(0.0, -1.0 / dynTexRes)).r;
+    float left  = texture(heightTex, theTexCoord + vec2(-difference, 0.0)).r; // + texture(tex, theTexCoord + vec2(-1.0 / dynTexRes, 0.0)).r;
+    float right = texture(heightTex, theTexCoord + vec2(difference, 0.0)).r ; // + texture(tex, theTexCoord + vec2(1.0 / dynTexRes, 0.0)).r;
+    return normalize(vec3(below - above, 1.0 / 420.0, left - right));
+} 
 
 vec3 dynamicTextureColor() {
     // Fetch the raw data from the texture
@@ -39,13 +53,18 @@ vec3 dynamicTextureColor() {
 
 void main()
 {
+    // vec3 normal = /* normalMat * */calculateNormal(theTexCoord);
+    // vec3 normal = calculateNormal(theTexCoord);
     vec3 lightColor = vec3(1.0);
 
-    // TODO: for some reason, rotating the mesh does not rotate the positions of the vertices.
-    vec3 lightSource = vec3(0.0f, 1.0f, -0.5f);
+    // vec3 lightSource = vec3(0.0f, 1.0f, -1.5f);
+    vec3 lightSource = vec3(0.0);
 
     /*
     color = vec4(vec3(1.0f / pow(distance(lightSource, thePosition.xyz), 4.0) * 2.0f), 1.0);
+    return;
+    vec3 color1 = vec3(step(0.99, normal.y));
+    color = vec4(color1, 1.0);
     return;
     */
 
@@ -71,7 +90,7 @@ void main()
     // vec3 objectColor = dynamicTextureColor();
     vec3 objectColor = vec3(1.0, 0.7, 0.5); 
 
-    vec3 lightStrength = (specular + diffuse + ambient) / (1.0 * length(light));
+    vec3 lightStrength = (specular + diffuse + ambient); // / (1.0 * length(light));
 
     vec3 outputColor = min(lightColor, lightStrength * objectColor);
     color = vec4(outputColor, 1.0);
